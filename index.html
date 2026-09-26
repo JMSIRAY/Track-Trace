@@ -24,6 +24,7 @@
             min-height: 100vh;
             margin: 0;
             padding: 20px;
+            box-sizing: border-box;
         }
 
         .tracker-card {
@@ -78,6 +79,8 @@
             font-weight: 500;
             outline: none;
             transition: all 0.3s;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         input[type="text"]:focus {
@@ -164,6 +167,27 @@
             font-weight: 500;
             line-height: 1.4;
         }
+
+        /* 📱 MGA DESIGN ADJUSTMENTS PARA SA CELLPHONE (RESPONSIVE) */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .tracker-card {
+                padding: 25px 20px; /* Binawasan ang panloob na espasyo para magkasya */
+            }
+            .header-area h1 {
+                font-size: 22px; /* Pinaliliit nang kaunti ang pamagat sa CP */
+            }
+            .search-group {
+                flex-direction: column; /* Pinagpapatong ang Textbox at Button para hindi masikip sa gilid */
+                gap: 8px;
+            }
+            button {
+                width: 100%; /* Ginawang buo ang lapad ng button para madaling pindutin sa CP */
+                padding: 14px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -205,7 +229,6 @@
 </div>
 
 <script>
-  // Narito ang iyong kinopyang Web App URL link mula sa iyong Google Sheets
   const googleSheetUrl = "https://script.google.com/macros/s/AKfycbwf3sBjxvKrfVikin7z4LKWHFvYtVV_5fAIj-JKOYZF39tG_XqydjdJaksh_FYS6o60Tw/exec"; 
 
   function executeTrackerSearch() {
@@ -214,10 +237,8 @@
       
       if (!inputVal) return alert("Mangyaring maglagay ng kahit ilang letra ng Branch name.");
       
-      // Itinatago muna ang panel ng resulta habang naghahanap
       resultBox.style.display = "none";
 
-      // Gamit ang URLSearchParams para ipadala ang search parameter patungo sa doPost(e)
       const params = new URLSearchParams();
       params.append('searchName', inputVal);
       
@@ -231,13 +252,11 @@
       .then(response => response.json())
       .then(data => {
           if (data.found) {
-              // I-inject ang nahanap na data sa HTML elements
               document.getElementById("displayBranch").innerText = data.branch;
               document.getElementById("displayItem").innerText = data.item;
               document.getElementById("displayStatus").innerText = data.status;
               document.getElementById("displayRemarks").innerText = data.remarks || "No remarks provided.";
               
-              // Palitan ang kulay ng status batay sa laman
               const statusPill = document.getElementById("displayStatus");
               const currentStatus = data.status.toLowerCase();
               if (currentStatus.includes("success") || currentStatus.includes("delivered") || currentStatus.includes("ok")) {
@@ -248,7 +267,6 @@
                   statusPill.style.backgroundColor = "var(--neutral)";
               }
 
-              // Ipakita ang Result panel
               resultBox.style.display = "block";
           } else {
               alert(data.error || "Paumanhin, walang nahanap na tugmang Branch name sa aming database.");
