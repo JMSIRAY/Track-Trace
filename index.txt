@@ -205,7 +205,7 @@
 </div>
 
 <script>
-  // IPASTE DITO ANG IYONG BAGONG WEB APP URL MULA SA DELIVERY TRACKER GOOGLE SHEET MO
+  // Narito ang iyong kinopyang Web App URL link mula sa iyong Google Sheets
   const googleSheetUrl = "https://script.google.com/macros/s/AKfycbwf3sBjxvKrfVikin7z4LKWHFvYtVV_5fAIj-JKOYZF39tG_XqydjdJaksh_FYS6o60Tw/exec"; 
 
   function executeTrackerSearch() {
@@ -237,7 +237,7 @@
               document.getElementById("displayStatus").innerText = data.status;
               document.getElementById("displayRemarks").innerText = data.remarks || "No remarks provided.";
               
-              // Palitan ang kulay ng status batay sa laman (Opsyonal)
+              // Palitan ang kulay ng status batay sa laman
               const statusPill = document.getElementById("displayStatus");
               const currentStatus = data.status.toLowerCase();
               if (currentStatus.includes("success") || currentStatus.includes("delivered") || currentStatus.includes("ok")) {
