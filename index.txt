@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RUSI EDP Tracking Portal</title>
+    <style>
+        :root {
+            --rusi-yellow: #ffcc00;
+            --rusi-black: #111111;
+            --rusi-dark-gray: #222222;
+            --rusi-light: #f5f5f5;
+            --success: #2e7d32;
+            --warning: #ef6c00;
+            --neutral: #757575;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #111111 0%, #222222 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .tracker-card {
+            background-color: #ffffff;
+            border-top: 6px solid var(--rusi-yellow);
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            width: 100%;
+            max-width: 520px;
+            padding: 35px 30px;
+            box-sizing: border-box;
+        }
+
+        .header-area {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .header-area h1 {
+            color: var(--rusi-black);
+            margin: 0;
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+        }
+
+        .header-area p {
+            color: #555;
+            font-size: 14px;
+            margin: 6px 0 0 0;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--rusi-yellow);
+            display: inline-block;
+            padding-bottom: 4px;
+        }
+
+        .search-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            margin-top: 15px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--rusi-black);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            padding: 14px 28px;
+            background-color: var(--rusi-black);
+            color: var(--rusi-yellow);
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: 800;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background-color: #333333;
+            color: #ffffff;
+        }
+
+        .result-panel {
+            display: none;
+            border-top: 1px solid #eeeeee;
+            padding-top: 25px;
+            margin-top: 5px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .data-row {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .data-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #777777;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .data-value {
+            font-size: 16px;
+            color: var(--rusi-black);
+            font-weight: 600;
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            background-color: var(--neutral);
+            margin-top: 3px;
+        }
+
+        .remarks-panel {
+            background-color: var(--rusi-light);
+            border-left: 4px solid var(--rusi-black);
+            padding: 14px 16px;
+            border-radius: 0 6px 6px 0;
+            margin-top: 6px;
+        }
+
+        .remarks-content {
+            font-size: 14px;
+            color: #333333;
+            margin: 0;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="tracker-card">
+    <div class="header-area">
+        <h1>Delivery Tracker</h1>
+        <p>RUSI EDP TRACKING SYSTEM</p>
+    </div>
+    
+    <div class="search-group">
+        <input type="text" id="branchSearchInput" placeholder="I-type ang Branch (e.g Meycauyan-Marilao)">
+        <button onclick="executeTrackerSearch()">Search</button>
+    </div>
+
+    <div id="trackerResultBox" class="result-panel">
+        <div class="data-row">
+            <div class="data-label">Branch / Outlet</div>
+            <div id="displayBranch" class="data-value"></div>
+        </div>
+        
+        <div class="data-row">
+            <div class="data-label">Item Requested</div>
+            <div id="displayItem" class="data-value"></div>
+        </div>
+        
+        <div class="data-row">
+            <div class="data-label">Current Status</div>
+            <div><span id="displayStatus" class="status-pill"></span></div>
+        </div>
+        
+        <div class="data-row">
+            <div class="data-label">Remarks / Notes</div>
+            <div class="remarks-panel" id="remarksIndicator">
+                <p id="displayRemarks" class="remarks-content"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function executeTrackerSearch() {
+    const inputVal = document.getElementById("branchSearchInput").value.trim();
+    const resultBox = document.getElementById("trackerResultBox");
+    
+    if (!inputVal) return alert("Mangyaring maglagay ng kahit ilang letra ng Branch name.");
+    
+    // Tinatawag nito ang searchData function na nasa Code.gs
+    google.script.run.withSuccessHandler(function(data) {
+        if (data.found) {
+            document.getElementById("displayBranch").innerText = data.branch;
+            document.getElementById("displayItem").innerText = data.item;
+            document.getElementById("displayRemarks").innerText = data.remarks ? data.remarks : "Walang opisyal na ulat.";
+            
+            const statusPill = document.getElementById("displayStatus");
+            const remarksBorder = document.getElementById("remarksIndicator");
+            statusPill.innerText = data.status;
+            
+            const lowerCaseStatus = data.status.toLowerCase();
+            
+            if (lowerCaseStatus.includes("delivered") || lowerCaseStatus.includes("kumpleto")) {
+                statusPill.style.backgroundColor = "var(--success)";
+                remarksBorder.style.borderLeftColor = "var(--success)";
+            } else if (lowerCaseStatus.includes("delivery") || lowerCaseStatus.includes("biyahe") || lowerCaseStatus.includes("transit")) {
+                statusPill.style.backgroundColor = "var(--warning)";
+                remarksBorder.style.borderLeftColor = "var(--warning)";
+            } else {
+                statusPill.style.backgroundColor = "var(--neutral)";
+                remarksBorder.style.borderLeftColor = "var(--rusi-black)";
+            }
+            
+            resultBox.style.display = "block";
+        } else {
+            alert("Hindi mahanap ang branch. Pakisuri ang iyong tinype.");
+            resultBox.style.display = "none";
+        }
+    }).searchData(inputVal);
+}
+</script>
+
+</body>
+</html>
