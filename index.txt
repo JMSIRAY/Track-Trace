@@ -205,44 +205,60 @@
 </div>
 
 <script>
-function executeTrackerSearch() {
-    const inputVal = document.getElementById("branchSearchInput").value.trim();
-    const resultBox = document.getElementById("trackerResultBox");
-    
-    if (!inputVal) return alert("Mangyaring maglagay ng kahit ilang letra ng Branch name.");
-    
-    // Tinatawag nito ang searchData function na nasa Code.gs
-    google.script.run.withSuccessHandler(function(data) {
-        if (data.found) {
-            document.getElementById("displayBranch").innerText = data.branch;
-            document.getElementById("displayItem").innerText = data.item;
-            document.getElementById("displayRemarks").innerText = data.remarks ? data.remarks : "Walang opisyal na ulat.";
-            
-            const statusPill = document.getElementById("displayStatus");
-            const remarksBorder = document.getElementById("remarksIndicator");
-            statusPill.innerText = data.status;
-            
-            const lowerCaseStatus = data.status.toLowerCase();
-            
-            if (lowerCaseStatus.includes("delivered") || lowerCaseStatus.includes("kumpleto")) {
-                statusPill.style.backgroundColor = "var(--success)";
-                remarksBorder.style.borderLeftColor = "var(--success)";
-            } else if (lowerCaseStatus.includes("delivery") || lowerCaseStatus.includes("biyahe") || lowerCaseStatus.includes("transit")) {
-                statusPill.style.backgroundColor = "var(--warning)";
-                remarksBorder.style.borderLeftColor = "var(--warning)";
-            } else {
-                statusPill.style.backgroundColor = "var(--neutral)";
-                remarksBorder.style.borderLeftColor = "var(--rusi-black)";
-            }
-            
-            resultBox.style.display = "block";
-        } else {
-            alert("Hindi mahanap ang branch. Pakisuri ang iyong tinype.");
-            resultBox.style.display = "none";
-        }
-    }).searchData(inputVal);
-}
-</script>
+  // IPASTE DITO ANG IYONG BAGONG WEB APP URL MULA SA DELIVERY TRACKER GOOGLE SHEET MO
+  const googleSheetUrl = "https://script.google.com/macros/s/AKfycbwf3sBjxvKrfVikin7z4LKWHFvYtVV_5fAIj-JKOYZF39tG_XqydjdJaksh_FYS6o60Tw/exec"; 
 
+  function executeTrackerSearch() {
+      const inputVal = document.getElementById("branchSearchInput").value.trim();
+      const resultBox = document.getElementById("trackerResultBox");
+      
+      if (!inputVal) return alert("Mangyaring maglagay ng kahit ilang letra ng Branch name.");
+      
+      // Itinatago muna ang panel ng resulta habang naghahanap
+      resultBox.style.display = "none";
+
+      // Gamit ang URLSearchParams para ipadala ang search parameter patungo sa doPost(e)
+      const params = new URLSearchParams();
+      params.append('searchName', inputVal);
+      
+      fetch(googleSheetUrl, {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: params.toString()
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.found) {
+              // I-inject ang nahanap na data sa HTML elements
+              document.getElementById("displayBranch").innerText = data.branch;
+              document.getElementById("displayItem").innerText = data.item;
+              document.getElementById("displayStatus").innerText = data.status;
+              document.getElementById("displayRemarks").innerText = data.remarks || "No remarks provided.";
+              
+              // Palitan ang kulay ng status batay sa laman (Opsyonal)
+              const statusPill = document.getElementById("displayStatus");
+              const currentStatus = data.status.toLowerCase();
+              if (currentStatus.includes("success") || currentStatus.includes("delivered") || currentStatus.includes("ok")) {
+                  statusPill.style.backgroundColor = "var(--success)";
+              } else if (currentStatus.includes("pending") || currentStatus.includes("warning") || currentStatus.includes("process")) {
+                  statusPill.style.backgroundColor = "var(--warning)";
+              } else {
+                  statusPill.style.backgroundColor = "var(--neutral)";
+              }
+
+              // Ipakita ang Result panel
+              resultBox.style.display = "block";
+          } else {
+              alert(data.error || "Paumanhin, walang nahanap na tugmang Branch name sa aming database.");
+          }
+      })
+      .catch(error => {
+          console.error("Error connecting to sheet:", error);
+          alert("Nagkaroon ng problema sa koneksyon sa database. Subukan muli.");
+      });
+  }
+</script>
 </body>
 </html>
